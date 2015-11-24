@@ -2,7 +2,10 @@
 #{set title:'listado.html' /}
 
  
-   	<link rel="stylesheet" href="@{'/public/stylesheets/jqx.base.css'}" type="text/css" />    
+ 	<link rel="stylesheet" href="@{'/public/stylesheets/bootstrap.css'}" type="text/css" />  
+ 	<link rel="stylesheet" href="@{'/public/stylesheets/temas/jqx.bootstrap.css'}" type="text/css" />   
+	<link rel="stylesheet" href="@{'/public/stylesheets/temas/jqx.base.css'}" type="text/css" />   
+   	<link rel="stylesheet" href="@{'/public/stylesheets/temas/jqx.darkblue.css'}" type="text/css" />    
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxcore.js'}"></script>
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxdata.js'}"></script> 
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxbuttons.js'}"></script>
@@ -23,6 +26,12 @@
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxnumberinput.js'}"></script> 
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxgrid.filter.js'}"></script> 
     <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxpanel.js'}"></script> 
+    <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/globalization/mensajes.js'}"></script>
+    <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/globalization/globalize.js'}"></script>      
+    <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxpanel.js'}"></script> 
+    <script type="text/javascript" src="@{'/public/javascripts/jqwidgets/jqxnotification.js'}"></script> 
+    
+    
 <h1>LISTADO</h1>
 
 
@@ -34,7 +43,16 @@
 
  <script type="text/javascript">
  
-        $(document).ready(function () {
+        $(document).ready(function () {  
+        	
+        	
+        	
+        	  $("#messageNotification").jqxNotification({
+                  width: '100%', position: "top-left", opacity: 0.9,
+                  autoOpen: false, animationOpenDelay: 800, autoClose: true, autoCloseDelay: 3000, template: "success"
+              });        	          	
+        	
+        	
             var url ='@{verListado}';
             // prepare the data
             var source =
@@ -57,6 +75,7 @@
 			            	idEmpleado: rowid
 			            },
 			        }).success(function(respuesta){
+			        	$("#messageNotification").jqxNotification("open");
 			        	commit(true);			        	
 			        });
                     
@@ -73,29 +92,34 @@
                 loadError: function (xhr, status, error) { }
             });
             
+                        
             // initialize jqxGrid
             $("#jqxgrid").jqxGrid(
-            {
-                width: 580,
+            {            
+            	theme:'darkblue',
+            	width: '100%',                
                 source: dataAdapter,               
                 pageable: true,
                 showfilterrow: true,
-                filterable: true,
+                filterable: true,                
                 autoheight: true,
                 sortable: true,
                 altrows: true,
                 enabletooltips: true,                
-                selectionmode: 'multiplecellsextended',
+                selectionmode: 'singlerow',
+                ready: function () {
+                    $("#jqxgrid").jqxGrid('localizestrings', localizationobj);
+                },
                 columns: [				
-                { text: 'Nombre', columngroup: 'DatosEmpleado', datafield: 'nombre', width: 250 },
-                { text: 'Apellido', columngroup: 'DatosEmpleado', datafield: 'apellido', width: 250 },
-                { text: 'Editar', datafield: 'Edit', columntype: 'button', cellsrenderer: function () {
+                { text: 'Nombre', columngroup: 'DatosEmpleado', width: '35%', datafield: 'nombre'},
+                { text: 'Apellido', columngroup: 'DatosEmpleado', width: '35%', datafield: 'apellido'},
+                { text: 'Editar', datafield: 'Edit', width: '30%',columntype: 'button', cellsrenderer: function () {
 	                    return 'EDITAR';
 	                 }, buttonclick: function (row) {
 	                    // open the popup window when the user clicks a button.
 	                    editrow = row;
 	                    var offset = $("#jqxgrid").offset();
-	                    $("#popupWindow").jqxWindow({ position: { x: parseInt(offset.left) + 60, y: parseInt(offset.top) + 60 } });
+	                    $("#popupWindow").jqxWindow({ theme:'darkblue',width: '100%',resizable:true,position: { x: parseInt(offset.left) + 60, y: parseInt(offset.top) + 60 } });
 	                    // get the clicked row's data and initialize the input fields.
 	                    var dataRecord = $("#jqxgrid").jqxGrid('getrowdata', editrow);
 	                    $("#idEmpleado").val(dataRecord.id);
@@ -112,7 +136,7 @@
             });
             
             
-            $("#jqxgrid").jqxGrid({ pagermode: 'simple' });//Estilo de Paginador
+            $("#jqxgrid").jqxGrid({pagermode: 'simple' });//Estilo de Paginador
             
             //EXPORTAR A EXCEL
             
@@ -174,15 +198,19 @@
         });
         
         
+        
       
                 
 
     </script>
 
 
+
+<div class="container">
  
       
- <div id="jqxgrid">
+ 		<div id="jqxgrid">
+ 		
        </div>
        <input type="button" value="Export to Excel" id='excelExportar' />
        
@@ -193,8 +221,9 @@
        
        <div id="popupWindow">
             <div><h5><b>EDITAR</b></h5></div>
-            <div style="overflow: hidden;">
-                <table>
+            <div style="overflow: hidden; width: 100%;">
+            
+                <table class="table">
                     <tr>
                     	<input type="hidden" id="idEmpleado" />
                         <td align="right"><label for="">Nombre:</label></td>
@@ -211,4 +240,14 @@
                 </table>
             </div>
        </div>
-    
+
+
+	
+	
+	 <!--Notifications-->
+    <div id="messageNotification">
+        <div>
+            <b>Actualización exitosa</b>
+        </div>
+    </div>
+    </div>

@@ -10,6 +10,8 @@ import java.util.*;
 public class Empleado extends Model {	
 	public String nombre;
 	public String apellido;
+	@Column(columnDefinition="TEXT")
+	public String perfilProfesiona;
 		
 	public String toString(){
 		return apellido+" "+nombre;
